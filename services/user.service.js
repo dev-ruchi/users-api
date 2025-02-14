@@ -1,4 +1,4 @@
-import { create } from "../store/user.store.js";
+import { create, findUser } from "../store/user.store.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import "dotenv/config";
@@ -48,4 +48,33 @@ export async function register(req, res) {
   } catch (error) {
     console.error(error);
   }
+}
+
+export async function login(data) {
+  const { username, password } = data;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
+  }
+
+  const user = await findUser({ username });
+
+  if (!user) {
+    throwErrorWithStatus(400, "Invalid credentials");
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    throwErrorWithStatus(400, "Invalid credentials");
+  }
+
+  const token = generateToken({ userId: user._id, username: user.username });
+
+  return {
+    user,
+    token,
+  };
 }
