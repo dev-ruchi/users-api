@@ -2,7 +2,7 @@ import { create, findUser } from "../store/user.store.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import { throwErrorWithStatus } from "../errorHandler.js";
+import { throwErrorWithStatus, sendErrorResponse } from "../errorHandler.js";
 
 function generateToken(payload) {
   return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -78,3 +78,24 @@ export async function login(data) {
     token,
   };
 }
+
+export async function searchUser(req, res) {
+  try {
+    const  query  = req.query;
+    if (!query) {
+        throwErrorWithStatus(400, "Search query is required");
+    }
+
+    const users = await findUser({
+      $or: [
+        { username: new RegExp(query, "i") },
+        { email: new RegExp(query, "i") },
+      ],
+    }).select("-password");
+
+    res.json(users);
+  } catch (error) {
+    sendErrorResponse(res, error);
+  }
+}
+ 

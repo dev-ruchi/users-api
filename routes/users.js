@@ -2,8 +2,9 @@ import express from "express";
 const router = express.Router();
 
 import createUserRules from "../rules/CreateUser.js";
-import { register, login } from "../services/user.service.js";
+import { register, login, searchUser } from "../services/user.service.js";
 import { sendErrorResponse } from "../errorHandler.js";
+import { auth } from "./middlewares/auth.middleware.js";    
 
 router.post("/register", ...createUserRules, async (req, res) => {
   try {
@@ -38,6 +39,19 @@ router.post("/login", async (req, res) => {
         country: user.country,
       },
       token,
+    });
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+}); 
+
+router.get("/search", auth, async (req, res) => {
+  try {
+    const users = await searchUser(req, res);
+
+    res.status(200).json({
+      message: "User found",
+      users,
     });
   } catch (err) {
     sendErrorResponse(res, err);
