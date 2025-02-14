@@ -81,21 +81,23 @@ export async function login(data) {
 
 export async function searchUser(req, res) {
   try {
-    const  query  = req.query;
-    if (!query) {
-        throwErrorWithStatus(400, "Search query is required");
+    const searchQuery = (req.query.username || req.query || "").toString();
+
+    if (!searchQuery || searchQuery === "") {
+      throwErrorWithStatus(400, "Search query is required");
     }
 
     const users = await searchUsers({
       $or: [
-        { username: new RegExp(query, "i") },
-        { email: new RegExp(query, "i") },
+        { username: searchQuery ? new RegExp(`^${searchQuery}`, "i") : null },
+        { email: new RegExp(`^${searchQuery}$`, "i") },
       ],
-    }).select("-password");
+    })
+      .select("-password")
+      .lean();
 
     return users;
   } catch (error) {
     sendErrorResponse(res, error);
   }
 }
- 

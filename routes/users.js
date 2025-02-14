@@ -4,7 +4,7 @@ const router = express.Router();
 import createUserRules from "../rules/CreateUser.js";
 import { register, login, searchUser } from "../services/user.service.js";
 import { sendErrorResponse } from "../errorHandler.js";
-import { auth } from "./middlewares/auth.middleware.js";    
+import { auth } from "./middlewares/auth.middleware.js";
 
 router.post("/register", ...createUserRules, async (req, res) => {
   try {
@@ -43,25 +43,25 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     sendErrorResponse(res, err);
   }
-}); 
+});
 
 router.get("/search", auth, async (req, res) => {
   try {
     const users = await searchUser(req, res);
 
-    if (!users) {
+    if (!users.length) {
       return res.status(404).json({
-          message: "No users found",
-          users: []
+        message: "No users found with the given search criteria",
+        users: [],
       });
-  }
+    }
 
     res.status(200).json({
       message: users.length === 1 ? "User found" : "Users found",
-      users
+      users,
     });
   } catch (err) {
-    sendErrorResponse(res, err); 
+    sendErrorResponse(res, err);
   }
 });
 
