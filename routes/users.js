@@ -49,12 +49,19 @@ router.get("/search", auth, async (req, res) => {
   try {
     const users = await searchUser(req, res);
 
+    if (!users) {
+      return res.status(404).json({
+          message: "No users found",
+          users: []
+      });
+  }
+
     res.status(200).json({
-      message: "User found",
-      users,
+      message: users.length === 1 ? "User found" : "Users found",
+      users
     });
   } catch (err) {
-    sendErrorResponse(res, err);
+    sendErrorResponse(res, err); 
   }
 });
 

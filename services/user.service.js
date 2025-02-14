@@ -1,4 +1,4 @@
-import { create, findUser } from "../store/user.store.js";
+import { create, findUser, searchUsers } from "../store/user.store.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import "dotenv/config";
@@ -86,14 +86,14 @@ export async function searchUser(req, res) {
         throwErrorWithStatus(400, "Search query is required");
     }
 
-    const users = await findUser({
+    const users = await searchUsers({
       $or: [
         { username: new RegExp(query, "i") },
         { email: new RegExp(query, "i") },
       ],
     }).select("-password");
 
-    res.json(users);
+    return users;
   } catch (error) {
     sendErrorResponse(res, error);
   }
