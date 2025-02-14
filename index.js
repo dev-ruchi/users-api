@@ -2,6 +2,9 @@ import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import bodyParser from "body-parser";
+
+import userRouter from "./routes/users.js";
 
 const port = process.env.PORT;
 const host = process.env.HOST;
@@ -19,6 +22,9 @@ const host = process.env.HOST;
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
+
+app.use("/users", userRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
