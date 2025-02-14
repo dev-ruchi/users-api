@@ -2,18 +2,18 @@ import express from "express";
 const router = express.Router();
 
 import createUserRules from "../rules/CreateUser.js";
-import { signup } from "../services/user.service.js";
+import { register } from "../services/user.service.js";
 import { sendErrorResponse } from "../errorHandler.js";
 
-router.post("/signup", ...createUserRules, async (req, res) => {
+router.post("/register", ...createUserRules, async (req, res) => {
   try {
-    const { savedUser, token } = await signup(req, res);
+    const { user, token } = await register(req, res);
 
     res.status(201).json({
       message: "User registered successfully",
       user: {
-        id: savedUser._id,
-        username: savedUser.username,
+        id: user._id,
+        username: user.username,
       },
       token,
     });

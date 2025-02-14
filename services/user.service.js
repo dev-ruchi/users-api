@@ -1,4 +1,3 @@
-import User from "../models/user.models.js";
 import { create } from "../store/user.store.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -11,7 +10,7 @@ function generateToken(payload) {
   });
 }
 
-export async function signup(req, res) {
+export async function register(req, res) {
   try {
     const {
       username,
@@ -27,16 +26,10 @@ export async function signup(req, res) {
       throwErrorWithStatus(400, "Username and password are required");
     }
 
-    const existingUser = await User.findOne({ username });
-
-    if (existingUser) {
-      throwErrorWithStatus(400, "Username is already taken");
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create and save the user
-    const user = new User({
+    const user = await create({
       fullName,
       username,
       email,
@@ -45,16 +38,14 @@ export async function signup(req, res) {
       dateOfBirth,
       country,
     });
-    const savedUser = await user.save();
 
     const token = generateToken({ userId: user._id });
 
     return {
-      savedUser,
+      user,
       token,
     };
   } catch (error) {
     console.error(error);
-    throw new Error(error.message);
   }
 }
